@@ -1,13 +1,15 @@
 {
   "appId": "com.n-ziermann.electron",
   "files": ["dist-electron", "dist-react"],
+  "extraResources":["dist-electron/preload.cjs"],
   "icon": "./images.png",
   "mac": {
     "target": "dmg"
   },
   "linux": {
     "target": "AppImage",
-    "category": "Utility"
+    "category": "Utility",
+   "icon": "./images.png",
   },
   "win": {
     "target": ["portable", "msi"]
