@@ -11,5 +11,5 @@ electron.contextBridge.exposeInMainWorld("electron", {
     },
     getStaticData: () => electron.ipcRenderer.invoke("getStaticData")
 
-})
+} satisfies window["electron"])
 
