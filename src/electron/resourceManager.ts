@@ -32,6 +32,8 @@ export const getStaticData = () => {
     const totalMemoryGB = Math.floor(OsUtils.totalmem() / 1024)
 
     return {
+
+
         totalStorage,
         cpuModel,
         totalMemoryGB
