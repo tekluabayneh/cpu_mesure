@@ -1,18 +1,15 @@
 import os from "os"
-
 import OsUtils from "os-utils"
 import fs from "fs"
-import { toASCII } from "punycode"
+import { BrowserWindow } from "electron"
 const POLLING_INTERVAl = 500
 
-export const pollResources = () => {
+export const pollResources = (mainwindow: BrowserWindow) => {
     setInterval(async () => {
         const cpuUsage = await getCpuUsage()
         const ramUsage = getRamUsage()
-        const getStorage = getStorageData()
-        console.log(cpuUsage)
-        console.log("ram", ramUsage)
-        console.log("starge", getStorage)
+        const getStorage = getStorageData().useage
+        mainwindow.webContents.send("statstics", { cpuUsage, ramUsage, getStorage })
     }, POLLING_INTERVAl)
 
 }
