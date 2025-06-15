@@ -3,15 +3,15 @@ import "./App.css";
 
 function App() {
 
-const [count, setCount] = useState(0);
+const [count, setCount] = useState(0)
 
  useEffect(()=>{
-  // @ts-ignore 
-    window.electron.subscribeStatistics((stats) => console.log(stats))
+    window.electron.subscribeStatistics((stats:any) => console.log(stats))
 	},[])
+
+
   return (
     <>
-      <div></div>
       <h1> man + React</h1>
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
