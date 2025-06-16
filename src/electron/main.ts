@@ -28,5 +28,9 @@ app.on("ready", () => {
 
 });
 
+const handleGetStaticData = (callback: () => StaticsData) => {
+    ipcMain.handle("getStaticData", callback)
+}
+
 
 
