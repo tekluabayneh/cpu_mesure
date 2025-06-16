@@ -2,7 +2,7 @@
 const electron = require("electron")
 
 electron.contextBridge.exposeInMainWorld("electron", {
-    subscribeStatistics: (callback: (statistics: any) => void) => {
+    subscribeStatistics: (callback) => {
 
         electron.ipcRenderer.on("statstics", (_, stats) => {
             callback({ stats })
