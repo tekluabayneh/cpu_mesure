@@ -12,6 +12,12 @@ type StaticsData = {
 }
 
 
+type EventPayloadMaping = {
+    Statstics: Statstics;
+    getStaticData: StaticsData
+}
+
+
 
 interface window {
     electron: {
