@@ -6,7 +6,7 @@ electron.contextBridge.exposeInMainWorld("electron", {
 
         electron.ipcRenderer.on("statstics", (_, stats) => {
             callback({ stats })
-        })
+        }
 
     },
     getStaticData: () => electron.ipcRenderer.invoke("getStaticData")
