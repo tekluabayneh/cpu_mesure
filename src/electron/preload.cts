@@ -1,15 +1,36 @@
+const electron = require('electron');
 
-const electron = require("electron")
+electron.contextBridge.exposeInMainWorld('electron', {
+    subscribeStatistics: (callback) =>
+        ipcOn('statistics', (stats) => {
+            callback(stats);
+        }),
+    subscribeChangeView: (callback) =>
+        ipcOn('changeView', (view) => {
+            callback(view);
+        }),
+    getStaticData: () => ipcInvoke('getStaticData'),
+    sendFrameAction: (payload) => ipcSend('sendFrameAction', payload),
+} satisfies Window['electron']);
 
-electron.contextBridge.exposeInMainWorld("electron", {
-    subscribeStatistics: (callback) => {
+function ipcInvoke<Key extends keyof EventPayloadMapping>(
+    key: Key
+): Promise<EventPayloadMapping[Key]> {
+    return electron.ipcRenderer.invoke(key);
+}
 
-        electron.ipcRenderer.on("statstics", (_, stats) => {
-            callback({ stats })
-        }
+function ipcOn<Key extends keyof EventPayloadMapping>(
+    key: Key,
+    callback: (payload: EventPayloadMapping[Key]) => void
+) {
+    const cb = (_: Electron.IpcRendererEvent, payload: any) => callback(payload);
+    electron.ipcRenderer.on(key, cb);
+    return () => electron.ipcRenderer.off(key, cb);
+}
 
-    },
-    getStaticData: () => electron.ipcRenderer.invoke("getStaticData")
-
-} satisfies window["electron"])
-
+function ipcSend<Key extends keyof EventPayloadMapping>(
+    key: Key,
+    payload: EventPayloadMapping[Key]
+) {
+    electron.ipcRenderer.send(key, payload);
+}
