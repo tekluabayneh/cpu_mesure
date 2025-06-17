@@ -1,36 +1,68 @@
+import { app, BrowserWindow, Menu } from 'electron';
+import { ipcMainHandle, ipcMainOn, isDev } from './util.js';
+import { getStaticData, pollResources } from './resourceManager.js';
+import { getPreloadPath, getUIPath } from './pathResolver.js';
+import { createTray } from './tray.js';
+import { createMenu } from './menu.js';
 
-import { app, BrowserWindow, ipcMain } from 'electron'
-
-import path from "path";
-import { isDev } from "./util.js";
-import { getStaticData, pollResources } from "./resourceManager.js";
-import { getPreloadPath } from "./pathResolver.js"
-app.on("ready", () => {
+app.on('ready', () => {
     const mainWindow = new BrowserWindow({
         webPreferences: {
             preload: getPreloadPath(),
         },
+        // disables default system frame (dont do this if you want a proper working menu bar)
+        frame: false,
+    });
+    if (isDev()) {
+        mainWindow.loadURL('http://localhost:5123');
+    } else {
+        mainWindow.loadFile(getUIPath());
+    }
+
+    pollResources(mainWindow);
+
+    ipcMainHandle('getStaticData', () => {
+        return getStaticData();
     });
 
-    if (isDev()) {
-        mainWindow.loadURL("http://localhost:5123/");
-    } else {
-        mainWindow.loadFile(path.join(app.getAppPath() + "/dist-react/index.html"));
-    }
-    pollResources(mainWindow)
+    ipcMainOn('sendFrameAction', (payload) => {
+        switch (payload) {
+            case 'CLOSE':
+                mainWindow.close();
+                break;
+            case 'MAXIMIZE':
+                mainWindow.maximize();
+                break;
+            case 'MINIMIZE':
+                mainWindow.minimize();
+                break;
+        }
+    });
 
-    mainWindow.webContents.openDevTools();
-
-    ipcMain.handle("getStaticData", () => {
-        return getStaticData()
-    })
-
-
+    createTray(mainWindow);
+    handleCloseEvents(mainWindow);
+    createMenu(mainWindow);
 });
 
-const handleGetStaticData = (callback: () => StaticsData) => {
-    ipcMain.handle("getStaticData", callback)
+function handleCloseEvents(mainWindow: BrowserWindow) {
+    let willClose = false;
+
+    mainWindow.on('close', (e) => {
+        if (willClose) {
+            return;
+        }
+        e.preventDefault();
+        mainWindow.hide();
+        if (app.dock) {
+            app.dock.hide();
+        }
+    });
+
+    app.on('before-quit', () => {
+        willClose = true;
+    });
+
+    mainWindow.on('show', () => {
+        willClose = false;
+    });
 }
-
-
-
